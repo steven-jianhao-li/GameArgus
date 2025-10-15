@@ -66,7 +66,7 @@
 
 ```bash
 # 一键安装所有依赖
-pip install pyqt6 opencv-python-headless mss pynput pygetwindow numpy
+pip install -r requestments.txt
 ````
 
 ### ② 运行程序:
