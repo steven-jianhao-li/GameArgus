@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
     
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("游戏辅助脚本 by Gemini")
+        self.setWindowTitle("GameArgus")
         self.setGeometry(150, 150, 500, 600)
 
         # 初始化核心组件
