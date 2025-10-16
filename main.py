@@ -69,31 +69,52 @@ class MainWindow(QMainWindow):
         
         # 3. 参数设置
         # 置信度
+        confidence_layout = QHBoxLayout()
         self.confidence_label = QLabel()
+        confidence_layout.addWidget(self.confidence_label)
+        confidence_layout.addWidget(self.create_info_label(
+            "数值越高，匹配越精确，但可能错过模糊或部分遮挡的目标。\n"
+            "数值越低，匹配越宽松，可能产生更多误报。\n"
+            "建议范围：80% - 95%"
+        ))
         self.confidence_slider = QSlider(Qt.Orientation.Horizontal)
         self.confidence_slider.setRange(50, 99)
         self.confidence_slider.valueChanged.connect(lambda v: self.confidence_label.setText(f"检测置信度: {v}%"))
         
         # 红框尺寸
-        self.box_width_input = QLineEdit()
-        self.box_height_input = QLineEdit()
         box_layout = QHBoxLayout()
         box_layout.addWidget(QLabel("红框宽:"))
+        self.box_width_input = QLineEdit()
         box_layout.addWidget(self.box_width_input)
         box_layout.addWidget(QLabel("高:"))
+        self.box_height_input = QLineEdit()
         box_layout.addWidget(self.box_height_input)
+        box_layout.addWidget(self.create_info_label(
+            "识别成功后显示的红色方框的尺寸（像素）。\n"
+            "通常设置为比你的目标图片稍大一点，以便完全框住目标。"
+        ))
         
         # 消失延迟
         delay_layout = QHBoxLayout()
-        self.delay_input = QLineEdit()
         delay_layout.addWidget(QLabel("红框消失延迟(秒):"))
+        self.delay_input = QLineEdit()
         delay_layout.addWidget(self.delay_input)
+        delay_layout.addWidget(self.create_info_label(
+            "目标在屏幕上消失后，红框继续显示的时间（秒）。\n"
+            "设置为0，则目标一消失红框就消失。\n"
+            "适当增加此值可以避免因检测不稳定导致的红框闪烁。"
+        ))
         
         # 热键
         hotkey_layout = QHBoxLayout()
-        self.hotkey_input = QLineEdit()
         hotkey_layout.addWidget(QLabel("启/停热键:"))
+        self.hotkey_input = QLineEdit()
         hotkey_layout.addWidget(self.hotkey_input)
+        hotkey_layout.addWidget(self.create_info_label(
+            "启动和停止监测的全局快捷键。\n"
+            "格式示例：'ctrl+alt+f10' 或 'shift+f1'。\n"
+            "修改后需要重启程序才能生效。"
+        ))
         
         # 4. 控制按钮
         self.toggle_button = QPushButton("启动监测")
@@ -105,7 +126,7 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.target_list_widget)
         main_layout.addLayout(img_btn_layout)
         main_layout.addSpacing(20)
-        main_layout.addWidget(self.confidence_label)
+        main_layout.addLayout(confidence_layout)
         main_layout.addWidget(self.confidence_slider)
         main_layout.addLayout(box_layout)
         main_layout.addLayout(delay_layout)
@@ -114,6 +135,13 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.toggle_button)
 
         self.setAcceptDrops(True)
+
+    def create_info_label(self, tooltip_text):
+        """创建一个带 'i' 图标和提示的标签。"""
+        info_label = QLabel("ⓘ")
+        info_label.setToolTip(tooltip_text)
+        info_label.setStyleSheet("font-size: 16px; color: #666;")
+        return info_label
 
     def load_settings(self):
         """从配置文件加载UI状态。"""
@@ -302,6 +330,12 @@ class MainWindow(QMainWindow):
         event.accept()
 
 if __name__ == '__main__':
+    # 确保在Windows上使用 'spawn' 启动方式以避免多进程问题
+    import multiprocessing
+    multiprocessing.freeze_support()
+    if sys.platform.startswith('win'):
+        multiprocessing.set_start_method('spawn', force=True)
+        
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
